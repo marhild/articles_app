@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:include="fragments/header"></th:block>
+
+<div class="container">
+    <div class="section">
+
+        <div class="row">
+            <div class="col s12 center">
+                <h3><i class="mdi-content-send brown-text"></i></h3>
+                <h4 th:text="${article.title}">Title</h4>
+                <h6 th:text="${article.category}">Category</h6>
+                <h6 class="left-align light" th:text="'written by ' + ${article.author}">Author</h6>
+                <h6 class="left-align light" th:text="'updated on ' + ${#dates.format(article.updatedAt, 'dd-MMM-yyyy')}">Updated on</h6>
+                <p class="left-align light" th:text="${article.description}"></p>
+                <p class="left-align light" th:text="${article.content}"></p>
+            </div>
+        </div>
+
+        <br>
+        &nbsp;
+        &nbsp;
+        <br>
+
+        <div class="row center">
+            <a th:href="@{'/article/' + ${article.articleId} + '/edit'}"
+               class="btn-large waves-effect waves-light teal lighten-1">Edit</a>
+        </div>
+
+    </div>
+</div>
+
+<th:block th:include="fragments/footer"></th:block>

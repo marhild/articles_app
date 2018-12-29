@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:include="fragments/header"></th:block>
+
+<div class="container">
+    <div class="section">
+
+        <div class="row">
+            <div class="col s12 center">
+                <table class="responsive-table highlight">
+                    <tr>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Category</th>
+                        <th>Updated At</th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each = "article : ${articles}">
+                        <td th:text="${article.title}"></td>
+                        <td th:text="${article.author}"></td>
+                        <td th:text="${article.category}"></td>
+                        <td th:text="${#dates.format(article.updatedAt, 'dd-MMM-yyyy')}"></td>
+                        <td><a th:href="@{/article/{id}(id=${article.articleId})}"><i class="fab fa-readme"></i></a></td>
+                        <td><a th:href="@{/article/{id}/edit(id=${article.articleId})}"><i class="far fa-edit"></i></a></td>
+                        <td><a th:href="@{/article/{id}/delete(id=${article.articleId})}"><i class="fas fa-trash-alt"></i></a></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <br>
+        &nbsp;
+        &nbsp;
+        <br>
+
+        <div class="row center">
+            <a th:href="@{'/article/new'}"
+               class="btn-large waves-effect waves-light teal lighten-1">New Article</a>
+        </div>
+
+    </div>
+</div>
+
+
+
+<th:block th:include="fragments/footer"></th:block>
