@@ -4,6 +4,7 @@ import com.example.articlesapp.Exception.ResourceNotFoundException;
 import com.example.articlesapp.model.Article;
 import com.example.articlesapp.model.PagerModel;
 import com.example.articlesapp.service.ArticleService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,8 +32,8 @@ public class ArticleController {
     protected static final String ARTICLE_VIEW = "articles/showArticle";                    //view template for single article
     protected static final String ARTICLE_ADD_FORM_VIEW = "articles/newArticle";            //form for new article
     protected static final String ARTICLE_EDIT_FORM_VIEW = "articles/editArticle";          //form for editing an article
-    protected static final String ARTICLE_LIST_VIEW = "articles/allArticles";               //list view of articles
-    protected static final String ARTICLE_PAGE_VIEW = "articles/allArticlesPagination";     //list with pagination
+    protected static final String ARTICLE_PAGE_VIEW = "articles/allArticles";     //list with pagination
+    protected static final String INDEX_VIEW = "index";     //articles with pagination
 
     //pagination
     private static final int BUTTONS_TO_SHOW = 3;
@@ -40,10 +41,20 @@ public class ArticleController {
     private static final int INITIAL_PAGE_SIZE = 5;
     private static final int[] PAGE_SIZES = { 5, 10};
 
-    private final ArticleService articleService;
+    @Autowired
+    private ArticleService articleService;
 
-    public ArticleController(ArticleService articleService){
-        this.articleService = articleService;
+    /**
+     *
+     * @param pageSize
+     * @param page
+     * @return
+     */
+    @GetMapping({"/", "/index"})
+    public ModelAndView getIndex(@RequestParam("pageSize") Optional<Integer> pageSize,
+                           @RequestParam("page") Optional<Integer> page) {
+        ModelAndView modelAndView = initPagination(pageSize, page, INDEX_VIEW);
+        return modelAndView;
     }
 
     /**
@@ -60,46 +71,14 @@ public class ArticleController {
 
     /**
      * GET all articles from database
-     * @param model         attributeValues
-     * @return              list view of articles
-     */
-    @GetMapping("/articles")
-    public String getAllArticles(Model model) {
-        Set<Article> articles = articleService.getAllArticles();
-        model.addAttribute("articles", articles);
-        return ARTICLE_LIST_VIEW;
-    }
-
-    /**
-     * GET all articles from database
      * @param pageSize      number of articles per page
      * @param page          subset of all articles
      * @return
      */
-    @GetMapping("/articles/pagination")
-    public ModelAndView getAllArticlesPagination(@RequestParam("pageSize") Optional<Integer> pageSize,
+    @GetMapping("/articles")
+    public ModelAndView getAllArticles(@RequestParam("pageSize") Optional<Integer> pageSize,
                                                  @RequestParam("page") Optional<Integer> page) {
-        Set<Article> articles = articleService.getAllArticles();
-        //TODO check if(articles.isEmpty())
-
-        ModelAndView modelAndView = new ModelAndView(ARTICLE_PAGE_VIEW);
-
-        // If pageSize == null, return initial page size
-        int evalPageSize = pageSize.orElse(INITIAL_PAGE_SIZE);
-        /*
-            If page == null || page < 0 (to prevent exception), return initial size
-            Else, return value of param. decreased by 1
-        */
-        int evalPage = (page.orElse(0) < 1) ? INITIAL_PAGE : page.get() - 1;
-
-        Page<Article> articlesList = articleService.findAll(PageRequest.of(evalPage, evalPageSize));
-        PagerModel pager = new PagerModel(articlesList.getTotalPages(),articlesList.getNumber(),BUTTONS_TO_SHOW);
-
-        modelAndView.addObject("articlesList",articlesList);
-        modelAndView.addObject("selectedPageSize", evalPageSize);
-        modelAndView.addObject("pageSizes", PAGE_SIZES);
-        modelAndView.addObject("pager", pager);
-
+        ModelAndView modelAndView = initPagination(pageSize, page, ARTICLE_PAGE_VIEW);
         return modelAndView;
     }
 
@@ -115,7 +94,6 @@ public class ArticleController {
         if (!model.containsAttribute("article")) {
             model.addAttribute("article", new Article());
         }
-        //TODO else msg please correct your errors , note that an other can't have two same titles
         return ARTICLE_ADD_FORM_VIEW;
     }
 
@@ -132,7 +110,8 @@ public class ArticleController {
      *          else:      redirect: '/article/{articleId}'
      */
     @PostMapping("/article/create")
-    public String createArticle(@Valid Article article, BindingResult result, Model model, RedirectAttributes attr) {
+    public String createArticle(@Valid Article article, BindingResult result, Model model,
+                                RedirectAttributes attr) {
 
         if (result.hasErrors() || articleService.titleAndAuthorValid(article) == false) {
 
@@ -143,8 +122,6 @@ public class ArticleController {
         }
         Article newArticle = articleService.createArticle(article);
         model.addAttribute("article", newArticle);
-        //TODO msg
-        model.addAttribute("msg", "Article" + " '" + article.getTitle() + "' " + "has been created." );
 
         return "redirect:/article/" + newArticle.getArticleId();
     }
@@ -192,8 +169,6 @@ public class ArticleController {
 
         articleService.updateArticle(articleId, articleDetails);
         model.addAttribute("article", articleService.findById(articleId));
-        //TODO msg
-        model.addAttribute("msg", "Article has been updated.");
         return "redirect:/article/" + articleId;
     }
 
@@ -201,33 +176,39 @@ public class ArticleController {
     /**
      * DELETE article by id from database
      * @param articleId
-     * @param model         attributeValues
      * @return              redirect: '/articles'
      */
     @RequestMapping(value= "/article/{id}/delete")
-    public String deleteArticle(@PathVariable("id") Long articleId, Model model) {
+    public String deleteArticle(@PathVariable("id") Long articleId) {
         Article article = articleService.findById(articleId);
         String title = article.getTitle();
         articleService.deleteArticle(articleId);
-        //TODO msg
-        model.addAttribute("msg", "Article" + " '" + title + "' " + "has been deleted.");
         return "redirect:/articles";
     }
 
     /**
-     * Resource Not Found
-     * @param exception
-     * @return 404error view
+     *
+     * @param pageSize
+     * @param page
+     * @return
      */
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ModelAndView handleNotFound(Exception exception){
+    public ModelAndView initPagination(Optional<Integer> pageSize,Optional<Integer> page, String url){
+        ModelAndView initModelView = new ModelAndView(url);
+        // If pageSize == null, return initial page size
+        int evalPageSize = pageSize.orElse(INITIAL_PAGE_SIZE);
+        /*
+            If page == null || page < 0 (to prevent exception), return initial size
+            Else, return value of param. decreased by 1
+        */
+        int evalPage = (page.orElse(0) < 1) ? INITIAL_PAGE : page.get() - 1;
 
-        ModelAndView modelAndView = new ModelAndView();
+        Page<Article> articlesList = articleService.findAll(PageRequest.of(evalPage, evalPageSize));
+        PagerModel pager = new PagerModel(articlesList.getTotalPages(),articlesList.getNumber(),BUTTONS_TO_SHOW);
 
-        modelAndView.setViewName("404error");
-        modelAndView.addObject("exception", exception);
-
-        return modelAndView;
+        initModelView.addObject("articlesList",articlesList);
+        initModelView.addObject("selectedPageSize", evalPageSize);
+        initModelView.addObject("pageSizes", PAGE_SIZES);
+        initModelView.addObject("pager", pager);
+        return initModelView;
     }
 }

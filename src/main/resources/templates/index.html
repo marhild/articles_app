@@ -1,61 +1,101 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
-<th:block th:include="fragments/header"></th:block>
+<th:block th:include="fragments/head"></th:block>
 
-  <div class="container">
-    <div th:if="${article != null}" class="section">
+<body class="index-page sidebar-collapse">
+    <th:block th:include="fragments/navbarTransparent"></th:block>
+    <th:block th:include="fragments/header"></th:block>
+    <div class="main main-raised">
+        <div class="section section-basic">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="container">
+                            <div class="row" th:each = "article : ${articlesList}">
+                                <div class="col">
+                                    <div class="title">
+                                        <h2 th:text="${article.title}"></h2>
+                                    </div>
+                                    <div>
+                                        <h6 th:text="'written by ' + ${article.author} + ' | ' + ${article.category}
+                                               + ' | ' + ${#dates.format(article.updatedAt, 'dd-MM-yyyy HH:mm')}"></h6>
+                                        <p th:text="${article.description}"></p>
+                                    </div>
+                                    <div class="container">
+                                        <div class="row">
+                                            <div class="col-sx-6 offset-sx-3"></div>
+                                            <a th:href="@{'/article/' + ${article.articleId}}"
+                                             class="btn btn-primary">continue</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-      <div class="row">
-        <div class="col s12 center">
-          <h3><i class="mdi-content-send brown-text"></i></h3>
-          <h4 th:text="${article.title}">Title</h4>
-          <h6 th:text="${article.category}">Category</h6>
-          <h6 class="left-align light" th:text="'written by ' + ${article.author}">Author</h6>
-          <p class="left-align light" th:text="${article.description}"></p>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col">
+                                    <div th:if="${articlesList.totalPages != 1}" class="section">
+                                        <ul class="pagination pagination-primary">
+                                            <li class="page-item" th:class="${articlesList.number == 0} ? disabled">
+                                                <a class="page-link" th:href="@{/(pageSize=${selectedPageSize}, page=1)}">«</a>
+                                            </li>
+                                            <li class="page-item" th:class="${articlesList.number == 0} ? disabled">
+                                                <a class="page-link" th:href="@{/(pageSize=${selectedPageSize}, page=${articlesList.number})}">←</a>
+                                            </li>
+                                            <li th:class="${articlesList.number == (page - 1)} ? 'active page-item'"
+                                                th:each="page : ${#numbers.sequence(pager.startPage, pager.endPage)}">
+                                                <a class="page-link" th:href="@{/(pageSize=${selectedPageSize}, page=${page})}" th:text="${page}"></a>
+                                            </li>
+                                            <li class="page-item" th:class="${articlesList.number + 1 == articlesList.totalPages} ? disabled">
+                                                <a class="page-link" th:href="@{/(pageSize=${selectedPageSize}, page=${articlesList.number + 2})}">→</a>
+                                            </li>
+                                            <li class="page-item" th:class="${articlesList.number + 1 == articlesList.totalPages} ? disabled">
+                                                <a class="page-link" th:href="@{/(pageSize=${selectedPageSize}, page=${articlesList.totalPages})}">»</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="title">
+                                        <h2>About</h2>
+                                    </div>
+                                    <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod
+                                        tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.
+                                        At vero eos et a et ea rebum. Stet clita kasd
+                                        gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. </p>
+                                    <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod
+                                        tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.
+                                        At vero eos et accusam et justo duo dolores et ea rebum. .</p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="title">
+                                        <h2>Contact</h2>
+                                    </div>
+                                    <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod
+                                        tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.
+                                        At vero eos et accusam et justo duo dolores et ea rebum. .</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-
-      <div class="row center">
-        <a th:href="@{'/article/' + ${article.articleId}}"
-           class="btn-large waves-effect waves-light teal lighten-1">continue</a>
-      </div>
-
     </div>
 
-    <div th:if="${article == null}" class="section">
+  <th:block th:include="fragments/footer"></th:block>
 
-      <div class="row">
-        <div class="col s12 center">
-          <h4>Lorem Ipsum</h4>
-          <h6>John Doe</h6>
-          <p class="left-align light">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
-            nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.
-            At vero eos et accusam et justo duo dolores et ea rebum.</p>
-          <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt
-            ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo
-            dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit
-            amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt
-            ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo
-            dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>
-        </div>
-      </div>
+  <th:block th:include="fragments/scripts"></th:block>
+</body>
 
-    </div>
-  </div>
-
-
-  <div class="parallax-container valign-wrapper">
-    <div class="section no-pad-bot">
-      <div class="container">
-        <div class="row center">
-          <h5 class="header col s12 light">Lorem ipsum dolor sit amet,
-            consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna
-            aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. </h5>
-        </div>
-      </div>
-    </div>
-    <div class="parallax"><img src="background3.jpg" alt="Unsplashed background img 2"></div>
-  </div>
-
-<th:block th:include="fragments/footer"></th:block>
+</html>

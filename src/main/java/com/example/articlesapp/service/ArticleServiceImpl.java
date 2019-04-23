@@ -1,8 +1,9 @@
 package com.example.articlesapp.service;
 
-import com.example.articlesapp.Exception.ResourceNotFoundException;
+import com.example.articlesapp.exception.ResourceNotFoundException;
 import com.example.articlesapp.model.Article;
 import com.example.articlesapp.repository.ArticleRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -15,11 +16,8 @@ import java.util.*;
 @Service
 public class ArticleServiceImpl implements ArticleService{
 
-    private final ArticleRepository articleRepository;
-
-    public ArticleServiceImpl(ArticleRepository articleRepository) {
-        this.articleRepository = articleRepository;
-    }
+    @Autowired
+    private ArticleRepository articleRepository;
 
     @Override
     public Set<Article> getAllArticles(){
@@ -31,13 +29,7 @@ public class ArticleServiceImpl implements ArticleService{
     @Override
     public Article createArticle(Article article){
         Article newArticle;
-        if (titleAndAuthorValid(article) == false) {
-            throw new ResourceNotFoundException("Article with this Title and Author already exists!");
-        } else {
-            article.setCreatedAt(new Date());
-            article.setUpdatedAt(new Date());
-            newArticle = articleRepository.save(article);
-        }
+        newArticle = articleRepository.save(article);
         return newArticle;
     }
 
@@ -51,11 +43,8 @@ public class ArticleServiceImpl implements ArticleService{
         Set<Article> articleSet = new HashSet<>();
         articleRepository.findByTitleAndAuthor(article.getTitle(),article.getAuthor())
                 .iterator().forEachRemaining(articleSet::add);
-        if (!articleSet.isEmpty()) {
-            return false;
-        } else {
-            return true;
-        }
+        if (!articleSet.isEmpty()) { return false;}
+        else {return true;}
     }
 
     @Override
@@ -83,16 +72,13 @@ public class ArticleServiceImpl implements ArticleService{
         Optional<Article> articleOptional = articleRepository.findById(id);
 
         if (!articleOptional.isPresent()) {
-            throw new ResourceNotFoundException("Article Not Found!");
+            throw new ResourceNotFoundException("There is no Article with ID = " + id);
         }
 
         return articleOptional.get();
 
     }
 
-    /**
-     * @return newest article in the databse
-     */
     @Override
     public Article getLatestEntry(){
         Set<Article> articles = getAllArticles();

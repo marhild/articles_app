@@ -5,6 +5,7 @@ import com.example.articlesapp.dateAudit.DateAudit;
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
+import java.util.Date;
 
 /**
  * @author platoiscoding.com
@@ -30,15 +31,18 @@ public class Article extends DateAudit {
     private String author;
 
     @Lob
+    @NotEmpty(message="The description cannot be empty.")
     @Column(name="description")
     private String description;
 
     @Lob
-    @NotEmpty(message="The content of the article cannot be empty,")
+    @NotEmpty(message="The content of the article cannot be empty.")
     @Column(name="content")
     private String content;
 
     public Article() {
+        this.setCreatedAt(new Date());
+        this.setUpdatedAt(new Date());
     }
 
     public Article(@Size(min = 2, max = 100) String title, @NotEmpty String category,
@@ -48,6 +52,9 @@ public class Article extends DateAudit {
         this.author = author;
         this.description = description;
         this.content = content;
+
+        this.setCreatedAt(new Date());
+        this.setUpdatedAt(new Date());
     }
 
     public long getArticleId() {

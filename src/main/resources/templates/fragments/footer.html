@@ -1,59 +1,35 @@
-<footer class="page-footer teal">
+<footer class="footer" data-background-color="black">
     <div class="container">
-        <div class="row">
-            <div class="col l6 s12">
-                <h5 class="white-text">Company Bio</h5>
-                <p class="grey-text text-lighten-4">Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
-                    sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.
-                    At vero eos et accusam et justo duo dolores et ea rebum. </p>
-
-
-            </div>
-            <div class="col l3 s12">
-                <h5 class="white-text">Contact</h5>
-                <ul>
-                    <li>Company Name</li>
-                    <li>FirstName LastName</li>
-                    <li>Address</li>
-                    <li>Mobile</li>
-                    <li>Email</li>
-                </ul>
-            </div>
-            <div class="col l3 s12">
-                <h5 class="white-text">Connect</h5>
-                <ul>
-                    <li><a class="white-text" href="#!"><i class="fab fa-facebook"></i> Facebook</a></li>
-                    <li><a class="white-text" href="#!"><i class="fab fa-twitter-square"></i> Twitter</a></li>
-                    <li><a class="white-text" href="#!"><i class="fab fa-linkedin"></i> LinkedIn</a></li>
-                </ul>
-            </div>
-        </div>
-    </div>
-    <div class="footer-copyright">
-        <div class="container">
-            Made by <a class="brown-text text-lighten-3" href="http://materializecss.com">Materialize</a>
+        <nav class="float-left">
+            <ul>
+                <li>
+                    <a th:href="@{https://www.creative-tim.com}">
+                        Creative Tim
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{https://creative-tim.com/presentation}">
+                        About Us
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{http://blog.creative-tim.com}">
+                        Blog
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{https://www.creative-tim.com/license}">
+                        Licenses
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="copyright float-right">
+            &copy;
+            <script>
+                document.write(new Date().getFullYear())
+            </script>, made with <i class="material-icons">favorite</i> by
+            <a th:href="@{https://www.creative-tim.com}" target="_blank">Creative Tim</a> for a better web.
         </div>
     </div>
 </footer>
-
-
-<!--  Scripts-->
-<script th:src="@{https://code.jquery.com/jquery-2.1.1.min.js}"></script>
-<script th:src="@{/js/materialize.js}"></script>
-<script th:src="@{/js/init.js}"></script>
-
-<script th:inline="javascript">
-    /*<![CDATA[*/
-    $(document).ready(function() {
-        changePageAndSize();
-    });
-    function changePageAndSize() {
-        $('#pageSizeSelect').change(function(evt) {
-            window.location.replace("/?pageSize=" + this.value + "&page=1");
-        });
-    }
-    /*]]>*/
-</script>
-
-</body>
-</html>

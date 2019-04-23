@@ -1,14 +1,23 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
-<th:block th:include="fragments/header"></th:block>
+<th:block th:include="fragments/head"></th:block>
 
-<div class="container">
+<body class="index-page sidebar-collapse">
+<th:block th:include="fragments/navbarTransparent"></th:block>
+
+<div class="main">
+    <th:block th:include="fragments/navbarPrimary"></th:block>
     <div class="section">
+        <div class="container">
+            <div class="row">
+                <div class="col">
 
-        <div class="row">
-            <div class="col s12 center">
-                <table class="responsive-table highlight">
+                    <div class="title">
+                        <h2>Table with Pagination</h2>
+                    </div>
+
+                    <table class="table table-responsive highlight">
                     <tr>
                         <th>Title</th>
                         <th>Author</th>
@@ -20,7 +29,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each = "article : ${articles}">
+                    <tr th:each = "article : ${articlesList}">
                         <td th:text="${article.title}"></td>
                         <td th:text="${article.author}"></td>
                         <td th:text="${article.category}"></td>
@@ -31,22 +40,58 @@
                     </tr>
                     </tbody>
                 </table>
+                </div>
             </div>
         </div>
-
         <br>
-        &nbsp;
-        &nbsp;
+        &nbsp;&nbsp;&nbsp;
         <br>
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <!--include if you want to select pagesize: 5,10 -->
+                    <!--
+                    <div>
+                        <select id="pageSizeSelect">
+                            <option th:each="pageSize : ${pageSizes}" th:text="${pageSize}"
+                                    th:value="${pageSize}"
+                                    th:selected="${pageSize} == ${selectedPageSize}"></option>
+                        </select>
+                    </div>-->
 
-        <div class="row center">
-            <a th:href="@{'/article/new'}"
-               class="btn-large waves-effect waves-light teal lighten-1">New Article</a>
+                    <div th:if="${articlesList.totalPages != 1}" class="section">
+                        <ul class="pagination pagination-primary">
+                            <li class="page-item" th:class="${articlesList.number == 0} ? disabled">
+                                <a class="page-link" th:href="@{/articles/(pageSize=${selectedPageSize}, page=1)}">«</a>
+                            </li>
+                            <li class="page-item" th:class="${articlesList.number == 0} ? disabled">
+                                <a class="page-link" th:href="@{/articles/(pageSize=${selectedPageSize}, page=${articlesList.number})}">←</a>
+                            </li>
+                            <li th:class="${articlesList.number == (page - 1)} ? 'active page-item'"
+                                th:each="page : ${#numbers.sequence(pager.startPage, pager.endPage)}">
+                                <a class="page-link" th:href="@{/articles/(pageSize=${selectedPageSize}, page=${page})}" th:text="${page}"></a>
+                            </li>
+                            <li class="page-item" th:class="${articlesList.number + 1 == articlesList.totalPages} ? disabled">
+                                <a class="page-link" th:href="@{/articles/(pageSize=${selectedPageSize}, page=${articlesList.number + 2})}">→</a>
+                            </li>
+                            <li class="page-item" th:class="${articlesList.number + 1 == articlesList.totalPages} ? disabled">
+                                <a class="page-link" th:href="@{/articles/(pageSize=${selectedPageSize}, page=${articlesList.totalPages})}">»</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
-
     </div>
 </div>
 
 
 
+
+
 <th:block th:include="fragments/footer"></th:block>
+
+<th:block th:include="fragments/scripts"></th:block>
+</body>
+
+</html>
